@@ -106,4 +106,5 @@
     for (i in 1:n_offenders) agents[[i]]$type = 'offender'
     
     return(agents)
+
   }
