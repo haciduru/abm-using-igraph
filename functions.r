@@ -3,27 +3,6 @@
 
   '%!in%' = function(x,y)!('%in%'(x,y))
   
-  init.agents = function(G, n_agents, p_offenders) {
-    
-    residences = row.names(as.matrix(V(G)[res == T]))
-    allnodes = unlist(lapply(row.names(as.matrix(V(G))), function(x) ifelse(substr(x, 1, 1) == 'r', x, NA)))
-    allnodes = allnodes[!is.na(allnodes)]
-    agents = vector('list', n_agents)
-    for (i in 1:n_agents) {
-      agent = list(type = 'citizen', res = sample(residences, 1), nodes = list(), loc = '', enroute = '', path = c())
-      nodes = sample(allnodes, 5)
-      agent$nodes = nodes[nodes %!in% agent$res][1:4]
-      agent$loc = agent$res
-      agent$enroute = sample(agent$nodes, 1)
-      agent$path = agent.path(agent)[-1]
-      agents[[i]] = agent
-    }
-    n_offenders = round(n_agents * p_offenders)
-    for (i in 1:n_offenders) agents[[i]]$type = 'offender'
-    
-    return(agents)
-  }  
-  
   add.r.nodes = function(G, e, residential, minL = 50) {
     if (e$length > minL) {
       h = as.character(e$h)
@@ -80,49 +59,44 @@
       G = add.r.nodes(G, Es[i,], minL)
     }
     G = G - V(G)[which(degree(G) == 0)]
+    G = simplify(G, edge.attr.comb = list(length = 'min', 'ignore'))
+    
     return(decompose(G)[[1]])
     
   }
 
-  agent.path = function(agent) {
-    
-    loc = agent$loc
-    enroute = agent$enroute
-    return(row.names(as.matrix(unlist(shortest_paths(G, loc, enroute)$vpath))))
-    
-  }
+  agent.path = function(agent) return(row.names(as.matrix(unlist(shortest_paths(G, agent$loc, agent$enroute)$vpath))))
   
   init.agents = function(G, n_agents, p_offenders, nodes) {
     
-    residences = row.names(as.matrix(V(G)[residential == T]))
-    allnodes = unlist(lapply(row.names(as.matrix(V(G))), function(x) ifelse(substr(x, 1, 1) == 'r', x, NA)))
-    allnodes = allnodes[!is.na(allnodes)]
-    agents = vector('list', n_agents)
+   	agents = vector('list', n_agents)
     for (i in 1:n_agents) {
-      agent = list(type = 'citizen', res = sample(residences, 1), anodes = list(), loc = '', enroute = '', path = c())
-      anodes = sample(allnodes, 5)
-      agent$anodes = anodes[anodes %!in% agent$res][1:4]
-      agent$loc = agent$res
-      agent$enroute = sample(agent$anodes, 1)
+      agent = list(type = 'citizen', 
+                   residence = sample(nodes[which(nodes$type == 'residence'), 'name'], 1),
+                   activity.nodes = sample(nodes[which(nodes$type != 'intersection'), 'name'], 5),
+                   location = '', enroute = '', motivation = 0, path = c())
+      agent$activity.nodes = agent$activity.nodes[agent$activity.nodes %!in% agent$residence][1:4]
+      agent$location = agent$residence
+      agent$enroute = sample(agent$activity.nodes, 1)
       agent$path = agent.path(agent)[-1]
       agents[[i]] = agent
     }
     n_offenders = round(n_agents * p_offenders)
-    for (i in 1:n_offenders) agents[[i]]$type = 'offender'
-    for (i in 1:n_agents) update.node(agents[[i]], nodes, '+')
-
+    for (i in 1:n_offenders) {
+      agents[[i]]$type = 'offender'
+      agents[[i]]$motivation = runif(1, 0, .05)
+    }
+    
     return(agents)
   }  
   
   move.agent = function(agent, nodes) {
     
-    if (agent$loc != agent$enroute) {
-      update.node(agent, nodes, '-')
-      agent$loc = agent$path[1]
-      update.node(agent, nodes, '+')
-      agent$path = agent$path[-1]
-    } else {
+    if (agent$location == agent$enroute) {
       agent = set.next.node(agent)
+    } else {
+      agent$location = agent$path[1]
+      agent$path = agent$path[-1]
     }
     return(agent)
     
@@ -130,30 +104,56 @@
   
   set.next.node = function(agent) {
     
-    if (agent$loc != agent$res) {
+    if (agent$location != agent$residence) {
       if (runif(1) < .8) {
-        agent$enroute = agent$res
+        agent$enroute = agent$residence
       } else {
-        agent$enroute = sample(agent$anodes[agent$anodes %!in% agent$loc], 1)
+        agent$enroute = sample(agent$activity.nodes[agent$activity.nodes %!in% agent$location], 1)
       }
     } else {
-      agent$enroute = sample(agent$anodes[agent$anodes %!in% agent$loc], 1)
+      agent$enroute = sample(agent$activity.nodes[agent$activity.nodes %!in% agent$location], 1)
     }
     agent$path = agent.path(agent)[-1]
     return(agent)
     
   }
   
-  update.node = function(agent, nodes, sign) {
-    if (agent$type == 'offender') {
-      nodes[which(nodes$name == agent$loc), 'n_offender'] <<- ifelse(sign == '+', 
-                                                                     nodes[which(nodes$name == agent$loc), 'n_offender'] + 1,
-                                                                     nodes[which(nodes$name == agent$loc), 'n_offender'] - 1
-                                                                     )
-    } else {
-      nodes[which(nodes$name == agent$loc), 'n_civilian'] <<- ifelse(sign == '+', 
-                                                                     nodes[which(nodes$name == agent$loc), 'n_civilian'] + 1,
-                                                                     nodes[which(nodes$name == agent$loc), 'n_civilian'] - 1
-                                                                     )
+  update.nodes = function(agents, nodes) {
+
+    nodes$n_offender = 0
+    nodes$n_civilian = 0
+    l = unlist(lapply(agents, function(x) x[x$type == 'offender']$location))
+    for (i in 1:length(l)) nodes[which(nodes$name == l[[i]]), ]$n_offender = nodes[which(nodes$name == l[[i]]), ]$n_offender + 1
+    l = unlist(lapply(agents, function(x) x[x$type == 'citizen']$location))
+    for (i in 1:length(l)) nodes[which(nodes$name == l[[i]]), ]$n_civilian = nodes[which(nodes$name == l[[i]]), ]$n_civilian + 1
+    return(nodes)
+
+  }
+  
+  init.nodes = function(G) {
+    
+    nodes = data.frame(name = row.names(as.matrix(V(G))), 
+                       type = ifelse(as.matrix(V(G)$residential), 'residence', 'non-residence'),
+                       n_offender = 0, n_civilian = 0, n_victim = 0)
+    nodes[which(substr(nodes$name, 1, 1) != 'r'), ]$type = 'intersection'
+    return(nodes)
+    
+  }
+
+  agent.attack = function(agent, nodes) {
+    
+    if (agent$type == 'offender' 
+        & agent$location %!in% c(agent$activity.nodes, agent$residence) 
+        & nodes[which(nodes$name == agent$location), 'type'] == 'residence') {
+      neig = c(agent$location, row.names(as.matrix(neighbors(G, V(G)[agent$location]))))
+      guardianship = sum(nodes[which(nodes$name %in% neig), 'n_civilian'])
+      if (guardianship == 0) {
+        if (runif(1) < agent$motivation) {
+          # attack
+          nodes[which(nodes$name == agent$location), 'n_victim'] = nodes[which(nodes$name == agent$location), 'n_victim'] + 1
+        }
+      }
     }
+    return(nodes)
+    
   }
