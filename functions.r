@@ -29,19 +29,9 @@
     edges = read.csv(epath)
     G = graph_from_data_frame(d = edges)
     G = as.undirected(G, mode = c("collapse"), 
-                      edge.attr.comb = list(highway = 'max', 
-                                            length = 'mean',
-                                            # lanes = 'max',
-                                            # width = 'mean',
-                                            # maxspeed = 'max',
-                                            # access = 'max',
-                                            # service = 'max',
-                                            bridge = 'max',
-                                            tunnel = 'max',
-                                            # area = 'mean',
-                                            junction = 'max',
-                                            # osmid = 'max',
-                                            'ignore'))
+                      edge.attr.comb = list(highway = 'max', length = 'mean',
+                                            bridge = 'max', tunnel = 'max',
+                                            junction = 'max', 'ignore'))
     V(G)$residential = F
     E(G)$residential = F
     E(G)[highway %in% c('residential', 'secondary', 'tetriary', NA)
@@ -157,3 +147,8 @@
     return(nodes)
     
   }
+
+  
+  
+
+  
