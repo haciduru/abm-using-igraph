@@ -3,7 +3,8 @@
 
   '%!in%' = function(x,y)!('%in%'(x,y))
   
-  add.r.nodes = function(G, e, residential, minL = 50) {
+  add.r.nodes = function(G, e, residential, minL = 50) 
+    
     if (e$length > minL) {
       h = as.character(e$h)
       t = as.character(e$t)
@@ -21,6 +22,7 @@
       G = G - E(G)[get.edge.ids(G, c(h, t))]
     }
     return(G)
+
   }
   
   init.w = function(path, minL = 50) {
@@ -38,7 +40,6 @@
          & bridge %in% c('', 'no', NA) 
          & tunnel %in% c('', 'no', NA) 
          & junction %in% c('', NA)]$residential = T
-
     G$rdix = 1
     Es = data.frame(t = row.names(as.matrix(tail_of(G, E(G)[which(E(G)$length > 50)]))),
                     h = row.names(as.matrix(head_of(G, E(G)[which(E(G)$length > 50)]))),
@@ -49,8 +50,7 @@
       G = add.r.nodes(G, Es[i,], minL)
     }
     G = G - V(G)[which(degree(G) == 0)]
-    G = simplify(G, edge.attr.comb = list(length = 'min', 'ignore'))
-    
+    G = simplify(G, edge.attr.comb = list(length = 'min', 'ignore')) 
     return(decompose(G)[[1]])
     
   }
@@ -75,9 +75,9 @@
     for (i in 1:n_offenders) {
       agents[[i]]$type = 'offender'
       agents[[i]]$motivation = runif(1, 0, .05)
-    }
-    
+    } 
     return(agents)
+    
   }  
   
   move.agent = function(agent, nodes) {
