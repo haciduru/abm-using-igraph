@@ -1,21 +1,20 @@
 
-  setwd("...")
+    
+  # init the world
+  G = init.w('...', 50)
   
-  edges = read.csv("edge_list.csv")
-  nodes = read.csv("node_list.csv")
-  nodes = with(nodes, data.frame(osmid = osmid))
-  
-  G = graph_from_data_frame(d = edges, vertices = nodes)
-  
-  tic()
-  G = create.residential.units(G, 50, .3)
-  toc()
-
   plot(G, layout = layout_with_fr,  
-       vertex.label = '', 
+       vertex.label = '',
+       # vertex.label = substr(V(G)$name, nchar(V(G)$name) - 3, nchar(V(G)$name)),
+       vertex.label.cex = 1,
+       vertex.size = 1,
        edge.arrow.size = .1, 
-       # vertex.size = 3, 
        edge.color = 'black', 
        edge.width = .5)
-
-  agents = init.agents(G, 10, .2)
+  
+    
+  #init nodes
+  nodes = data.frame(name = row.names(as.matrix(V(G))), n_offender = 0, n_civilian = 0)
+  
+  # init agents
+  agents = init.agents(G, 10, .5, nodes)
