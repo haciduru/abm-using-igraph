@@ -25,13 +25,13 @@ I don't really need the *offenders.on.nodes* list for now, but it is not computa
 
 The functions.r file has all the functions that I need for this study. They are not many, and their names are self-explanatory. 
 
-The *init.r.nodes* function creates a named list of street segments/subsegments (i.e., nodes) with a residential building. The *init.a.nodes* function creates a list of street segments/subsegments with any residential, commercial, industrial, or publicly owned building. These two functions are used to initialize the agents.
+The ***init.r.nodes*** function creates a named list of street segments/subsegments (i.e., nodes) with a residential building. The ***init.a.nodes*** function creates a list of street segments/subsegments with any residential, commercial, industrial, or publicly owned building. These two functions are used to initialize the agents.
 
-The *move.agent* function moves the agent from one node to another, and the *set.next.node* function sets the new destination once the agent reaches the current destination. Once a new destination is set, the *agent.path* function retrieves the shortest path to the destination, from the igraph object (i.e., G).
+The ***move.agent*** function moves the agent from one node to another, and the *set.next.node* function sets the new destination once the agent reaches the current destination. Once a new destination is set, the ***agent.path*** function retrieves the shortest path to the destination, from the igraph object (i.e., G).
 
-The *agent.attack* function makes the agent commit a crime. In this research, it is burglary. Whether an agent will commit a crime or not depends on several factors. These factors can be manipulated to conduct experiments.
+The ***agent.attack*** function makes the agent commit a crime. In this research, it is burglary. Whether an agent will commit a crime or not depends on several factors. These factors can be manipulated to conduct experiments.
 
-The following two functions, ***update.c.on.nodes*** and *update.o.on.nodes* creates named lists of the numbers of citizens and offenders on nodes.
+The following two functions, ***update.c.on.nodes*** and ***update.o.on.nodes*** creates named lists of the numbers of citizens and offenders on nodes.
 
 
 
