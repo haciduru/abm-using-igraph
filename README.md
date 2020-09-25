@@ -8,3 +8,5 @@ Birks and Davies (2017) use NetLogo software to create their virtual world. I wi
 *uptown_neig_edges_3402_prj_split_by_100m.csv* has the street segments (and subsegments) in the target neighborhoods.
 
 *Land Use Codes - Hamilton County Auditor Dusty Rhodes* is a list of all (I assume) land-use types in Hamilton County.
+
+*split_by_100_prj_points.csv* has all land-uses in Hamilton County, OH.
