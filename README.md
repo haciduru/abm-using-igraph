@@ -31,7 +31,7 @@ The *move.agent* function moves the agent from one node to another, and the *set
 
 The *agent.attack* function makes the agent commit a crime. In this research, it is burglary. Whether an agent will commit a crime or not depends on several factors. These factors can be manipulated to conduct experiments.
 
-The following two functions, *update.c.on.nodes* and *update.o.on.nodes* creates named lists of the numbers of citizens and offenders on nodes.
+The following two functions, ***update.c.on.nodes*** and *update.o.on.nodes* creates named lists of the numbers of citizens and offenders on nodes.
 
 
 
