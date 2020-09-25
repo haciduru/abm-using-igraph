@@ -20,3 +20,10 @@ The *init.r* file has all the code that creates the virtual environment and the 
 The *citizens.on.nodes* list is later used to calculate guardianship level in and around any node. Note that a node of the igraph object corresponds to a street segment/subsegment in the real world.
 
 I don't really need the *offenders.on.nodes* list for now, but it is not computationally demanding. Therefore, I can keep it for later use.
+
+**functions.r**
+
+The functions.r file has all the functions that I need for this study. They are not many, and their names are self-explanatory. 
+
+The *init.r.nodes* function creates a named list of street segments/subsegments (i.e., nodes) with a residential building. The *init.a.nodes* function creates a list of street segments/subsegments with any residential, commercial, industrial, or publicly owned building. These two functions are used to initialize the agents.
+
