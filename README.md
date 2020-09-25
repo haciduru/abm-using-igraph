@@ -18,3 +18,5 @@ Birks and Davies (2017) use NetLogo software to create their virtual world. I wi
 The *init.r* file has all the code that creates the virtual environment and the agents. The virtual environment is an igraph graph object. It is used to find the shortest paths between the agents' activity nodes. Additionally, the code in this file initializes three named lists. These are *citizens.on.nodes*, *offenders.on.nodes*, and *victim.nodes*.
 
 The *citizens.on.nodes* list is later used to calculate guardianship level in and around any node. Note that a node of the igraph object corresponds to a street segment/subsegment in the real world.
+
+I don't really need the *offenders.on.nodes* list for now, but it is not computationally demanding. Therefore, I can keep it for later use.
